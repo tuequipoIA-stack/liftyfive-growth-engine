@@ -1,0 +1,13 @@
+{
+  "name": "liftyfive-growth-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Réplica funcional del Agente G (Predictive Growth Engine) de LiftyFive — pronóstico de demanda estacional por país y radar de fuga (churn), con Claude API.",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "pdf-parse": "^1.1.4",
+    "xlsx": "^0.18.5"
+  }
+}

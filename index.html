@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiftyFive — Predictive Growth Engine (Agente G)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root{
+    --bg:#060607; --surface:#111214; --surface-2:#17181b; --surface-3:#1e2124;
+    --border:#2a2c30; --border-soft:#1c1e21; --text:#f5f6f7; --text-dim:#9a9da3; --text-faint:#5c5f63;
+    --brand:#2170db; --brand-soft:#132846;
+    --teal:#33c9a7; --teal-soft:#12312a;
+    --coral:#f2645a; --coral-soft:#3a1c1a;
+    --amber:#e0a22c; --amber-soft:#332708;
+    --purple:#a675e0; --purple-soft:#231633;
+    --accent2:#5b9df9; --accent2-soft:#122540;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); }
+  .wrap{max-width:1080px; margin:0 auto; padding:36px 24px 80px;}
+  header{margin-bottom:28px;}
+  .brand-row{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+  .brand-badge{width:34px; height:34px; border-radius:9px; background:var(--brand); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px;}
+  .brand-name{font-weight:700; font-size:15px;}
+  .brand-sub{font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.8px;}
+  .eyebrow{font-size:11.5px; color:var(--teal); text-transform:uppercase; letter-spacing:0.8px; font-weight:600;}
+  h1{font-size:28px; margin:6px 0 8px;}
+  .lead{color:var(--text-dim); font-size:14.5px; max-width:760px; line-height:1.5;}
+  .painbox{background:linear-gradient(160deg, var(--teal-soft), transparent); border:1px solid var(--teal); border-radius:12px; padding:16px 20px; margin-top:18px;}
+  .painbox .t{font-size:10.5px; color:var(--teal); text-transform:uppercase; letter-spacing:0.6px; font-weight:700;}
+  .painbox p{margin:8px 0 0; font-size:13px; color:var(--text); line-height:1.5;}
+
+  .section-divider{display:flex; align-items:center; gap:14px; margin:44px 0 20px;}
+  .section-divider .num{width:26px; height:26px; border-radius:7px; background:var(--brand); color:#fff; font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .section-divider .txt h2{font-size:17px; margin:0;}
+  .section-divider .txt p{font-size:12px; color:var(--text-faint); margin:2px 0 0;}
+  .section-divider hr{flex:1; border:none; border-top:1px solid var(--border);}
+
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px 24px; margin-bottom:20px;}
+  .card h3{font-size:16px; margin:0 0 4px;}
+  .card-sub{color:var(--text-dim); font-size:12.5px; margin-bottom:16px; line-height:1.5;}
+  label{display:block; font-size:12px; color:var(--text-dim); margin-bottom:6px; font-weight:600;}
+  input[type=text]{
+    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:8px;
+    color:var(--text); padding:10px 12px; font-size:13.5px; font-family:inherit; margin-bottom:14px;
+  }
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px;}
+  @media (max-width:640px){.grid2, .grid3{grid-template-columns:1fr;}}
+
+  .btn{ background:var(--brand); color:#fff; border:none; border-radius:9px; padding:11px 18px; font-size:13.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+  .btn:hover{filter:brightness(1.08);}
+  .btn:disabled{opacity:0.45; cursor:not-allowed;}
+  .btn.secondary{background:var(--surface-3); color:var(--text);}
+  .note{font-size:11.5px; color:var(--text-faint); margin-top:8px; line-height:1.5;}
+  .status{font-size:13px; padding:10px 14px; border-radius:8px; margin-top:14px;}
+  .status.error{background:var(--coral-soft); color:var(--coral); border:1px solid var(--coral);}
+  .status.info{background:var(--brand-soft); color:var(--accent2); border:1px solid var(--brand);}
+  .status.ok{background:var(--teal-soft); color:var(--teal); border:1px solid var(--teal);}
+  .spinner{width:16px; height:16px; border:2px solid rgba(255,255,255,0.25); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .fuente-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:760px){.fuente-grid{grid-template-columns:1fr;}}
+  .fuente-block{background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:16px;}
+  .fuente-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px;}
+  .fuente-block h4{font-size:13px; margin:0;}
+  .fuente-tag{font-size:9.5px; padding:2px 8px; border-radius:100px; white-space:nowrap;}
+  .fuente-tag.opcional{color:var(--text-faint); background:var(--surface-3);}
+  .fuente-tag.recomendado{color:var(--amber); background:var(--amber-soft);}
+  .fuente-block .fuente-sub{font-size:11.5px; color:var(--text-dim); margin-bottom:12px; line-height:1.5;}
+  .file-btn-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .file-name{font-size:12px; color:var(--teal);}
+
+  .kpi-row{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px;}
+  @media (max-width:760px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+  .kpi-card{background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:14px 16px;}
+  .kpi-card .kpi-label{font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.4px;}
+  .kpi-card .kpi-value{font-family:monospace; font-size:18px; font-weight:700; margin-top:4px;}
+  .kpi-card .kpi-note{font-size:10px; color:var(--text-faint); margin-top:2px;}
+
+  .timeline{position:relative; margin:20px 0 30px; padding-left:26px; border-left:2px solid var(--border);}
+  .tl-item{position:relative; margin-bottom:34px;}
+  .tl-item:last-child{margin-bottom:0;}
+  .tl-dot{position:absolute; left:-33px; top:2px; width:14px; height:14px; border-radius:50%; border:3px solid var(--bg);}
+  .tl-header{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:4px;}
+  .tl-fecha{font-size:15.5px; font-weight:700;}
+  .tl-countdown{font-size:11px; color:var(--text-faint); background:var(--surface-3); padding:2px 10px; border-radius:100px;}
+  .tl-pais{font-size:10.5px; color:var(--text-faint);}
+
+  .pronostico-card{background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-top:10px;}
+  .pron-top{display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .pron-metric .v{font-family:monospace; font-size:24px; font-weight:800;}
+  .pron-metric .l{font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.3px;}
+  .confianza-chip{font-size:10px; font-weight:700; text-transform:uppercase; padding:3px 10px; border-radius:100px;}
+  .confianza-chip.alta{color:var(--teal); background:var(--teal-soft);}
+  .confianza-chip.media{color:var(--amber); background:var(--amber-soft);}
+  .confianza-chip.baja{color:var(--coral); background:var(--coral-soft);}
+
+  .accion-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:10px;}
+  @media (max-width:760px){.accion-grid{grid-template-columns:1fr;}}
+  .accion-block{background:var(--surface); border:1px solid var(--border-soft); border-radius:10px; padding:14px 16px;}
+  .accion-block .accion-label{display:flex; align-items:center; gap:7px; font-size:11px; font-weight:700; color:var(--accent2); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:8px;}
+  .accion-block ul{margin:0; padding-left:18px; font-size:12px; color:var(--text-dim); line-height:1.7;}
+  .accion-block ul li{margin-bottom:2px;}
+
+  .churn-card{background:var(--surface-2); border:1px solid var(--coral); border-radius:12px; padding:20px 22px; margin-top:6px;}
+  .churn-top{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:14px;}
+  .churn-num{font-family:monospace; font-size:32px; font-weight:800; color:var(--coral);}
+  .churn-lbl{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.3px;}
+  .churn-list{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media (max-width:760px){.churn-list{grid-template-columns:1fr;}}
+  .churn-item{background:var(--surface); border:1px solid var(--border-soft); border-radius:9px; padding:12px 14px; font-size:12px; color:var(--text-dim); line-height:1.6;}
+  .churn-item b{color:var(--text); display:block; margin-bottom:2px; font-size:12.5px;}
+
+  .cruce-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;}
+  @media (max-width:760px){.cruce-grid{grid-template-columns:1fr;}}
+  .cruce-card{background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:16px 18px;}
+  .cruce-tag{display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; padding:3px 10px; border-radius:100px; margin-bottom:10px;}
+  .cruce-tag.match{color:var(--teal); background:var(--teal-soft);}
+  .cruce-tag.propia{color:var(--purple); background:var(--purple-soft);}
+  .cruce-fechas{font-size:12px; color:var(--text-dim); margin-bottom:8px; line-height:1.6;}
+  .cruce-fechas b{color:var(--text);}
+  .cruce-oportunidad{font-size:12.5px; color:var(--text); line-height:1.55; background:var(--surface); border:1px solid var(--border-soft); border-radius:8px; padding:10px 12px;}
+
+  .pdf-toolbar{display:flex; justify-content:flex-end; margin:20px 0 6px;}
+  .pdf-toolbar .btn{width:auto; padding:9px 16px; font-size:12.5px;}
+  #resultado-pdf-content{background:var(--bg); padding:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand-row">
+      <div class="brand-badge">L5</div>
+      <div>
+        <div class="brand-name">LiftyFive</div>
+        <div class="brand-sub">AI-First Retail Media</div>
+      </div>
+    </div>
+    <span class="eyebrow">Método LiftyFive · Agente G</span>
+    <h1>Predictive Growth Engine — Pronosticador</h1>
+    <p class="lead">Cruza tu historial de ventas real con el calendario comercial de cada país y las fuentes de mercado para anticipar picos de demanda, sugerir inventario, y armar la estrategia de comunicación y acompañamiento a ventas de cada fecha clave. Además, detecta señales tempranas de fuga de clientes.</p>
+    <div class="painbox">
+      <div class="t">Dolor que resuelve</div>
+      <p>Las fechas clave del año no son las mismas en cada país, y muchas marcas las manejan "de memoria" o genéricas sin ajustar por mercado local, lo que termina en quiebre de stock o campañas que arrancan tarde. Este agente ancla el pronóstico en el historial real de la marca y en el contexto real del mercado — no en supuestos genéricos.</p>
+    </div>
+  </header>
+
+  <div class="section-divider">
+    <div class="num">1</div>
+    <div class="txt"><h2>Configuración y fuentes de datos</h2><p>Lo que el agente necesita para poder pronosticar con evidencia real.</p></div>
+    <hr>
+  </div>
+
+  <div class="card">
+    <h3>Datos del cliente</h3>
+    <div class="card-sub">Contexto para anclar el calendario comercial correcto.</div>
+    <div class="grid3">
+      <div><label>Cliente</label><input type="text" id="f-cliente" placeholder="San Fernando"></div>
+      <div><label>País o mercado</label><input type="text" id="f-pais" placeholder="Colombia"></div>
+      <div><label>Categoría / producto</label><input type="text" id="f-categoria" placeholder="Pollo — trozado y entero"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Canales de venta</label><input type="text" id="f-canales-venta" placeholder="Retail, e-commerce, delivery, HORECA"></div>
+      <div><label>Canales de comunicación</label><input type="text" id="f-canales-com" placeholder="Instagram, TikTok, email, WhatsApp"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Fuentes de datos</h3>
+    <div class="card-sub">Cualquier formato, todo opcional. Con solo el país ya corre usando el calendario base — cuantas más fuentes reales sumes, más sube la precisión.</div>
+    <div class="fuente-grid">
+      <div class="fuente-block">
+        <div class="fuente-top"><h4>Historial de ventas propio</h4><span class="fuente-tag recomendado">Recomendado</span></div>
+        <div class="fuente-sub">Ventas con fecha, producto, canal y monto — podés subir varios archivos (distintos años). El reporte final te va a decir qué tan preciso es el pronóstico con lo que subiste, y qué sumar para mejorarlo.</div>
+        <div class="file-btn-row"><button class="btn secondary" type="button" onclick="document.getElementById('file-ventasPropio').click()">Adjuntar archivo(s)</button><span class="file-name" id="name-ventasPropio"></span></div>
+        <input type="file" id="file-ventasPropio" multiple style="display:none;" onchange="cargarArchivos(event,'ventasPropio')">
+      </div>
+      <div class="fuente-block">
+        <div class="fuente-top"><h4>Calendario comercial del país</h4><span class="fuente-tag opcional">Auto + editable</span></div>
+        <div class="fuente-sub">Ya trae un calendario base por país. Subí un archivo (columnas fecha + nombre) para sumar fechas locales adicionales que el calendario base no tenga.</div>
+        <div class="file-btn-row"><button class="btn secondary" type="button" onclick="document.getElementById('file-calendarioPais').click()">Adjuntar archivo</button><span class="file-name" id="name-calendarioPais"></span></div>
+        <input type="file" id="file-calendarioPais" style="display:none;" onchange="cargarArchivos(event,'calendarioPais')">
+      </div>
+      <div class="fuente-block">
+        <div class="fuente-top"><h4>Calendario propio de la marca</h4><span class="fuente-tag opcional">Puede faltar</span></div>
+        <div class="fuente-sub">Tu plan del año (lanzamientos, campañas, aniversarios). El agente cruza estas fechas contra el calendario comercial para detectar coincidencias y oportunidades propias.</div>
+        <div class="file-btn-row"><button class="btn secondary" type="button" onclick="document.getElementById('file-calendarioMarca').click()">Adjuntar archivo</button><span class="file-name" id="name-calendarioMarca"></span></div>
+        <input type="file" id="file-calendarioMarca" style="display:none;" onchange="cargarArchivos(event,'calendarioMarca')">
+      </div>
+      <div class="fuente-block">
+        <div class="fuente-top"><h4>Datos de cliente final (para churn)</h4><span class="fuente-tag opcional">Puede faltar</span></div>
+        <div class="fuente-sub">Las mismas fuentes con identificador persistente que usás en Agente F (fidelización, e-commerce, delivery). Activa el radar de fuga.</div>
+        <div class="file-btn-row"><button class="btn secondary" type="button" onclick="document.getElementById('file-datosClienteFinal').click()">Adjuntar archivo(s)</button><span class="file-name" id="name-datosClienteFinal"></span></div>
+        <input type="file" id="file-datosClienteFinal" multiple style="display:none;" onchange="cargarArchivos(event,'datosClienteFinal')">
+        <div class="note" style="margin-top:8px;">Por ahora subí el archivo directo acá — la reutilización automática desde Agente F todavía no está conectada entre agentes.</div>
+      </div>
+      <div class="fuente-block">
+        <div class="fuente-top"><h4>Reportes de mercado</h4><span class="fuente-tag opcional">Puede faltar</span></div>
+        <div class="fuente-sub">Reportes sectoriales o de calendario e-commerce LATAM, si tenés acceso. Se usa como contexto cuando no hay historial propio suficiente.</div>
+        <div class="file-btn-row"><button class="btn secondary" type="button" onclick="document.getElementById('file-reportesMercado').click()">Adjuntar archivo(s)</button><span class="file-name" id="name-reportesMercado"></span></div>
+        <input type="file" id="file-reportesMercado" multiple style="display:none;" onchange="cargarArchivos(event,'reportesMercado')">
+      </div>
+    </div>
+    <div class="note">Cuantas más fuentes reales sumes, más precisa la proyección — el propio entregable te va a indicar qué documento puntual conviene agregar y cuánto podría mejorar la precisión.</div>
+    <button class="btn" style="margin-top:14px;" id="btn-procesar" onclick="procesar()" type="button">Generar pronóstico</button>
+    <div id="status-area"></div>
+  </div>
+
+  <div id="resultado-area"></div>
+</div>
+
+<script>
+const archivosCargados = {};
+
+function cargarArchivos(event, tipo){
+  const files = Array.from(event.target.files || []);
+  if(!files.length) return;
+  const maxMB = 6;
+  const validos = [];
+  for(const file of files){
+    if(file.size > maxMB * 1024 * 1024){
+      alert(`"${file.name}" supera ${maxMB}MB. Probá con un recorte más chico.`);
+      continue;
+    }
+    validos.push(file);
+  }
+  if(!validos.length) return;
+  archivosCargados[tipo] = archivosCargados[tipo] || [];
+  let pendientes = validos.length;
+  validos.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      archivosCargados[tipo].push({ nombre: file.name, base64: e.target.result });
+      pendientes--;
+      if(pendientes === 0){
+        document.getElementById('name-'+tipo).innerText = archivosCargados[tipo].map(a=>a.nombre).join(', ');
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function procesar(){
+  const pais = document.getElementById('f-pais').value.trim();
+  if(!pais){
+    alert('Necesito al menos el país para anclar el calendario comercial correcto.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-procesar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Cruzando fuentes y calculando pronóstico…';
+  document.getElementById('status-area').innerHTML = '<div class="status info">Leyendo documentos y armando el pronóstico. Puede tardar hasta un minuto.</div>';
+  document.getElementById('resultado-area').innerHTML = '';
+
+  const archivos = [];
+  Object.entries(archivosCargados).forEach(([tipo, lista]) => {
+    lista.forEach(a => archivos.push({ tipo, nombre: a.nombre, base64: a.base64 }));
+  });
+
+  const payload = {
+    cliente: document.getElementById('f-cliente').value.trim(),
+    pais,
+    categoria: document.getElementById('f-categoria').value.trim(),
+    canalesVenta: document.getElementById('f-canales-venta').value.trim(),
+    canalesComunicacion: document.getElementById('f-canales-com').value.trim(),
+    archivos
+  };
+
+  try{
+    const r = await fetch('/api/forecast', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+
+    if(!r.ok){
+      document.getElementById('status-area').innerHTML = `<div class="status error">${data.error || 'Error construyendo el pronóstico.'}</div>`;
+    } else {
+      document.getElementById('status-area').innerHTML = '<div class="status ok">Listo. Pronóstico generado.</div>';
+      renderResultado(data, pais);
+    }
+  } catch(e){
+    document.getElementById('status-area').innerHTML = `<div class="status error">Error de red: ${e.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Generar pronóstico';
+}
+
+const DOTCOLORS = ['#a675e0','#2170db','#f2645a','#33c9a7','#e0a22c','#5b9df9','#a675e0','#2170db'];
+
+function formatearFecha(iso){
+  const d = new Date(iso + 'T00:00:00Z');
+  return d.toLocaleDateString('es-AR', { weekday:'long', day:'2-digit', month:'long', year:'numeric', timeZone:'UTC' });
+}
+
+function renderResultado(data, pais){
+  const fechas = data.fechas || [];
+  const cruces = data.cruces || [];
+  const churn = data.churn;
+  const precision = data.precision || {};
+
+  const proximaFecha = fechas[0];
+  const picoMasAlto = fechas.reduce((max, f) => (f.uplift != null && (max === null || f.uplift > max.uplift)) ? f : max, null);
+  const fuentesCount = 1 + (data.pais ? 0 : 0); // placeholder, se calcula abajo con detalle real
+  const confianzaGeneralClass = precision.score >= 75 ? 'alta' : (precision.score >= 45 ? 'media' : 'baja');
+
+  const kpisHtml = `
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-label">Próxima fecha clave</div><div class="kpi-value" style="font-size:14px;">${proximaFecha ? proximaFecha.nombre : 'n/d'}</div><div class="kpi-note">${proximaFecha ? ('en ' + proximaFecha.diasFaltantes + ' días') : ''}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Pico más alto proyectado</div><div class="kpi-value">${picoMasAlto ? (picoMasAlto.uplift > 0 ? '+' : '') + picoMasAlto.uplift + '%' : 'sin historial'}</div><div class="kpi-note">${picoMasAlto ? picoMasAlto.nombre : ''}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Clientes en riesgo de fuga</div><div class="kpi-value" style="color:var(--coral);">${churn ? churn.enRiesgoCount : 'n/d'}</div><div class="kpi-note">${churn ? (Math.round(churn.enRiesgoCount/churn.totalPersonas*100) + '% de la base') : 'sin datos de cliente final'}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Precisión general</div><div class="kpi-value">${precision.score}%</div><div class="kpi-note">${precision.detalle || ''}</div></div>
+    </div>`;
+
+  const precisionHtml = `
+    <div class="card">
+      <h3>Precisión de este pronóstico</h3>
+      <div class="card-sub" style="margin-bottom:10px;">Calculada según cuántas fuentes reales se pudieron cruzar — no todas las fechas tienen la misma precisión individual.</div>
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px; flex-wrap:wrap;">
+        <span class="confianza-chip ${confianzaGeneralClass}">Precisión general: ${precision.score}%</span>
+        <span style="font-size:12px; color:var(--text-dim);">${precision.detalle || ''}</span>
+      </div>
+      <div class="note" style="margin-top:0;"><b style="color:var(--text);">Cómo subir la precisión:</b> ${precision.comoMejorar || ''}</div>
+    </div>`;
+
+  const crucesHtml = cruces.length ? `
+    <div class="card">
+      <h3>Calendario propio × mercado — oportunidades detectadas</h3>
+      <div class="card-sub" style="margin-bottom:0;">Cruce entre tu calendario de marca y el calendario comercial de ${pais}.</div>
+      <div class="cruce-grid">
+        ${cruces.map(c => `
+          <div class="cruce-card">
+            <span class="cruce-tag ${c.tipo === 'coincidencia' ? 'match' : 'propia'}">${c.tipo === 'coincidencia' ? 'Coincidencia detectada' : 'Oportunidad propia de marca'}</span>
+            <div class="cruce-fechas">
+              <b>${c.eventoMarca}</b> — ${c.fechaMarca}
+              ${c.tipo === 'coincidencia' ? `<br>cae a ${c.diasEntre} día(s) de <b>${c.nombreMercado}</b> — ${c.fechaMercado}` : '<br>sin coincidencia con ninguna fecha comercial cercana'}
+            </div>
+            <div class="cruce-oportunidad">${c.oportunidad || ''}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const timelineHtml = fechas.map((f, i) => {
+    const acc = f.accionables || {};
+    const renderLista = (items, label, icon) => (items && items.length) ? `
+      <div class="accion-block">
+        <div class="accion-label">${icon} ${label}</div>
+        <ul>${items.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>` : '';
+    return `
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${DOTCOLORS[i % DOTCOLORS.length]};"></div>
+      <div class="tl-header">
+        <span class="tl-fecha">${f.nombre}</span>
+        <span class="tl-countdown">En ${f.diasFaltantes} días</span>
+        <span class="tl-pais">${formatearFecha(f.fechaISO)} · ${pais}</span>
+      </div>
+      <div class="pronostico-card">
+        <div class="pron-top">
+          <div class="pron-metric"><div class="v">${f.uplift != null ? ((f.uplift > 0 ? '+' : '') + f.uplift + '%') : 'sin historial'}</div><div class="l">Demanda esperada vs. semana base</div></div>
+          <span class="confianza-chip ${f.confianza}">Confianza ${f.confianza}</span>
+        </div>
+        <div class="accion-grid">
+          ${renderLista(acc.stock_logistica, 'Stock y logística', '📦')}
+          ${renderLista(acc.comunicacion, 'Comunicación', '📣')}
+          ${renderLista(acc.ventas, 'Acompañar a ventas', '🤝')}
+          ${renderLista(acc.logistica, 'Acompañar a logística', '🚚')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const churnHtml = churn ? `
+    <div class="section-divider">
+      <div class="num">3</div>
+      <div class="txt"><h2>Radar de fuga (churn)</h2><p>Mismo motor de identificación de persona que Agente F, mirando hacia atrás.</p></div>
+      <hr>
+    </div>
+    <div class="churn-card">
+      <div class="churn-top">
+        <div><div class="churn-num">${churn.enRiesgoCount}</div><div class="churn-lbl">Clientes con señal de fuga (${Math.round(churn.enRiesgoCount/churn.totalPersonas*100)}% de la base)</div></div>
+        <span class="confianza-chip media">Basado en ${churn.totalPersonas} personas identificadas</span>
+      </div>
+      <div class="churn-list">
+        ${(churn.grupos || []).map(g => `<div class="churn-item"><b>${g.nombre}</b>${g.cantidad} personas — ${g.descripcion} Acción sugerida: ${g.accion}</div>`).join('')}
+      </div>
+    </div>` : '';
+
+  document.getElementById('resultado-area').innerHTML = `
+    <div class="section-divider">
+      <div class="num">2</div>
+      <div class="txt"><h2>Entregable</h2><p>Próximos meses en ${pais}, calculado sobre tus fuentes reales.</p></div>
+      <hr>
+    </div>
+    <div class="pdf-toolbar">
+      <button class="btn secondary" onclick="descargarPDF()" type="button">Descargar informe en PDF</button>
+    </div>
+    <div id="resultado-pdf-content">
+      <div class="card">
+        <h3>Resumen ejecutivo</h3>
+        <div class="note" style="margin-top:0;">${data.resumen_ejecutivo || ''}</div>
+      </div>
+      ${kpisHtml}
+      ${precisionHtml}
+      ${crucesHtml}
+      <div class="timeline">${timelineHtml}</div>
+      ${churnHtml}
+    </div>
+  `;
+}
+
+function descargarPDF(){
+  const el = document.getElementById('resultado-pdf-content');
+  if(!el){ alert('No hay ningún resultado generado todavía.'); return; }
+  const nombreCliente = (document.getElementById('f-cliente').value.trim() || 'cliente')
+    .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const fecha = new Date().toISOString().slice(0,10);
+  const opciones = {
+    margin: 10,
+    filename: `agente-g-${nombreCliente || 'cliente'}-${fecha}.pdf`,
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, backgroundColor: '#060607' },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+  html2pdf().set(opciones).from(el).save();
+}
+</script>
+</body>
+</html>
